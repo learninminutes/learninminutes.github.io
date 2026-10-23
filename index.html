@@ -13,6 +13,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 :root{
   --sky:#23ACE4; --glow:#8CCBED; --ink:#14121A; --paper:#FFFDF6;
@@ -215,8 +216,7 @@ footer{text-align:center;margin-top:36px}
 
   <section class="card" id="formCard">
     <span class="tag">Idea box</span>
-    <form id="ideaForm" name="idea" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
-      <input type="hidden" name="form-name" value="idea">
+    <form id="ideaForm" name="idea" novalidate>
       <p class="hp"><label>Don't fill this: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
 
       <h2>Drop your brain-melter 🧠💥</h2>
@@ -257,6 +257,7 @@ footer{text-align:center;margin-top:36px}
         </div>
       </div>
 
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFhya7z5qdO1-d37" data-appearance="interaction-only" data-theme="light"></div>
       <button class="btn send" id="sendBtn" type="submit">Send it 🚀</button>
       <p class="err" id="err" role="alert"></p>
     </form>
@@ -266,7 +267,15 @@ footer{text-align:center;margin-top:36px}
       <h2>Idea received!</h2>
       <p class="muted" id="doneMsg">Brainy is chewing on it right now. If we make it, you get the shout-out.</p>
       <span class="badge" id="badge">Big brain level: 1</span>
+      <p class="muted" style="margin-top:14px">One idea a day keeps Brainy happy. See you tomorrow! 🌙</p>
       <button class="btn send" type="button" id="againBtn" style="background:var(--yellow)">Send another 🔁</button>
+    </div>
+
+    <div class="done" id="limit">
+      <div class="big">😴🧠💤</div>
+      <h2>Brainy is full for today!</h2>
+      <p class="muted">You already sent today's idea (thank you!). Brainy is digesting it.<br>Come back tomorrow with a fresh one.</p>
+      <span class="badge" style="background:var(--lime)">New idea unlocks in <b id="countdown">--:--:--</b></span>
     </div>
   </section>
 
@@ -307,23 +316,18 @@ footer{text-align:center;margin-top:36px}
 <script>
 /* ===== CONFIG: the only part you need to edit ===== */
 const CONFIG = {
-  youtube: "https://www.youtube.com/@learninminuteshq",   // check this is the channel's real link
+  youtube: "https://www.youtube.com/@learninminuteshq",
   instagram: "https://www.instagram.com/learninminuteshq/",
-  // Google Form backend (free, unlimited, answers land in a Google Sheet). See SETUP.md.
-  googleForm: {
-    action: "https://docs.google.com/forms/d/e/1FAIpQLSf62CUoygytZLKo5SANRYsD3GujHxvre2JfzB3cWlpBzcODkg/formResponse",
-    fields: { idea: "entry.508680647", category: "entry.1977669556", name: "entry.1849553055", platform: "entry.1399361170" }
-  }
+  // Cloudflare Worker that checks for bots, limits ideas per IP and saves to the Google Sheet (worker.js).
+  worker: "https://lim-ideas.danishsrmc2020.workers.dev/",
+  perDevicePerDay: 1
 };
 /* ================================================== */
 
 const $ = id => document.getElementById(id);
 $("ytLink").href = CONFIG.youtube;
 $("igLink").href = $("igPill").href = CONFIG.instagram;
-
-const useGoogle = !!CONFIG.googleForm.action;
-const onNetlify = /netlify\.app$/.test(location.hostname);
-if (!useGoogle && !onNetlify) $("setupBanner").classList.add("on");
+if (!CONFIG.worker) $("setupBanner").classList.add("on");
 
 /* --- Brainy: eyes follow you --- */
 const svg = $("mascot"), pupils = [...document.querySelectorAll(".pupil")];
@@ -419,45 +423,72 @@ $("spinBtn").addEventListener("click", () => {
   })();
 });
 
-/* --- submit --- */
+/* --- daily limit (per device; the worker also limits per IP) --- */
 const form = $("ideaForm"), err = $("err"), sendBtn = $("sendBtn");
 function store(get, set){ try { return set === undefined ? localStorage.getItem(get) : localStorage.setItem(get, set); } catch { return null; } }
+const today = () => new Date().toDateString();
+const sentToday = () => store("lim-day") === today() ? parseInt(store("lim-day-count")) || 0 : 0;
+function showLimit(){
+  form.style.display = "none"; $("done").classList.remove("on"); $("limit").classList.add("on");
+  const tick = () => {
+    const t = new Date(); t.setHours(24, 0, 0, 0);
+    const s = Math.max(0, Math.floor((t - new Date()) / 1000));
+    $("countdown").textContent = [s / 3600, s / 60 % 60, s % 60].map(n => String(Math.floor(n)).padStart(2, "0")).join(":");
+  };
+  tick(); setInterval(tick, 1000);
+}
+if (sentToday() >= CONFIG.perDevicePerDay) showLimit();
 
+/* --- bot check token (Cloudflare Turnstile, usually invisible) --- */
+async function botToken(){
+  for (let i = 0; i < 40; i++) {
+    const t = form.elements["cf-turnstile-response"]?.value;
+    if (t) return t;
+    await new Promise(r => setTimeout(r, 250));
+  }
+  return "";
+}
+function resetBotCheck(){ try { window.turnstile && turnstile.reset(); } catch {} }
+
+/* --- submit --- */
 form.addEventListener("submit", async e => {
   e.preventDefault();
   err.textContent = "";
   const text = idea.value.trim();
   if (text.length < 10) { err.textContent = "Brainy needs a bit more than that (10+ characters) 🥺"; idea.focus(); return; }
   if (form.elements["bot-field"].value) return;   // bot
+  if (sentToday() >= CONFIG.perDevicePerDay) { showLimit(); return; }
 
   const data = { idea: text, category: $("category").value, name: $("name").value.trim(), platform: $("platform").value };
   sendBtn.disabled = true; sendBtn.textContent = "Launching… 🚀";
   try {
-    if (useGoogle) {
-      const body = new URLSearchParams();
-      for (const k in data) if (CONFIG.googleForm.fields[k]) body.append(CONFIG.googleForm.fields[k], data[k]);
-      await fetch(CONFIG.googleForm.action, { method: "POST", mode: "no-cors", body });
-    } else if (onNetlify) {
-      const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({ "form-name": "idea", ...data }).toString() });
-      if (!r.ok) throw new Error(r.status);
-    } else {
-      console.warn("Setup mode: not saved", data);
-    }
+    if (!CONFIG.worker) { console.warn("Setup mode: not saved", data); throw new Error("setup"); }
+    data.token = await botToken();
+    const r = await fetch(CONFIG.worker, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) });
+    const res = await r.json().catch(() => ({}));
+    if (res.reason === "limit") { store("lim-day", today()); store("lim-day-count", CONFIG.perDevicePerDay); showLimit(); return; }
+    if (res.reason === "bot") { err.textContent = "Brainy thinks you might be a robot 🤖 Refresh the page and try again."; return; }
+    if (!res.ok) throw new Error(res.reason || r.status);
+
+    const n = sentToday() + 1;
+    store("lim-day", today()); store("lim-day-count", n);
     const total = (parseInt(store("lim-ideas")) || 0) + 1;
     store("lim-ideas", total);
     $("badge").textContent = "Big brain level: " + total + (total >= 3 ? " 🔥" : "");
     form.style.display = "none"; $("done").classList.add("on");
+    $("againBtn").style.display = sentToday() >= CONFIG.perDevicePerDay ? "none" : "";
     say("NOM NOM. Delicious idea!"); party(); confetti();
     $("formCard").scrollIntoView({ behavior: "smooth", block: "center" });
   } catch (x) {
     err.textContent = "Uh oh, the idea got lost in space. Try again in a sec 🛸";
   } finally {
+    resetBotCheck();
     sendBtn.disabled = false; sendBtn.textContent = "Send it 🚀";
   }
 });
 
 $("againBtn").addEventListener("click", () => {
+  if (sentToday() >= CONFIG.perDevicePerDay) { showLimit(); return; }
   form.reset(); idea.dispatchEvent(new Event("input"));
   chips.forEach((c, i) => c.setAttribute("aria-pressed", i === 0)); $("category").value = "What if?";
   $("done").classList.remove("on"); form.style.display = ""; idea.focus();
