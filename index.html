@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feed the Brain · Learn in Minutes</title>
+<meta name="description" content="Got a weird question? Suggest the next Learn in Minutes video. We turn the best ones into 60-second explainers.">
+<meta property="og:title" content="What should we explain next? 🧠">
+<meta property="og:description" content="Send your weirdest 'what if' to Learn in Minutes. The best ones become videos (with a shout-out).">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#23ACE4">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --sky:#23ACE4; --glow:#8CCBED; --ink:#14121A; --paper:#FFFDF6;
+  --yellow:#FFD43B; --pink:#FF5FA2; --lime:#B6F04A; --orange:#FF8A3D;
+  --purple:#9B6BFF; --mint:#4BE3C1; --gold:#F2C14E; --red:#FF2E3B;
+  --line:3px solid var(--ink); --pop:6px 6px 0 var(--ink); --pop-sm:4px 4px 0 var(--ink);
+  --r:22px;
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:Fredoka,system-ui,sans-serif; color:var(--ink); min-height:100vh; overflow-x:hidden;
+  background:radial-gradient(120% 80% at 50% 25%, var(--glow) 0%, var(--sky) 55%, #1B8FC4 100%) fixed;
+  background-color:var(--sky);
+}
+/* faint dot grid like a notebook */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.35) 1.5px, transparent 1.6px);background-size:26px 26px;z-index:0}
+
+/* floating doodles */
+.doodles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.doodles span{position:absolute;font-size:clamp(28px,5vw,46px);animation:drift 9s ease-in-out infinite;filter:drop-shadow(3px 3px 0 rgba(20,18,26,.25))}
+@keyframes drift{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-22px) rotate(10deg)}}
+
+main{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:18px 16px 60px}
+
+.setup-banner{display:none;background:var(--yellow);border:var(--line);border-radius:14px;padding:10px 14px;
+  font-weight:600;font-size:14px;box-shadow:var(--pop-sm);margin-bottom:14px}
+.setup-banner.on{display:block}
+
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--paper);border:var(--line);border-radius:999px;
+  padding:6px 14px;font-weight:700;font-size:14px;box-shadow:var(--pop-sm);text-decoration:none;color:var(--ink)}
+.pill.live::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--red);animation:blinkdot 1.2s infinite}
+@keyframes blinkdot{50%{opacity:.2}}
+
+/* hero */
+.hero{text-align:center;padding:10px 0 6px}
+.mascot-wrap{position:relative;width:min(300px,78vw);margin:4px auto 0}
+.mascot{width:100%;height:auto;display:block;animation:bob 2.6s ease-in-out infinite;cursor:pointer;touch-action:manipulation}
+@keyframes bob{0%,100%{transform:translateY(0) rotate(-2deg)}50%{transform:translateY(-10px) rotate(2deg)}}
+.mascot.party{animation:party .55s ease-in-out 4}
+@keyframes party{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-12deg) scale(1.08)}75%{transform:rotate(12deg) scale(1.08)}}
+.eye{transform-box:fill-box;transform-origin:center;animation:blink 5s infinite}
+@keyframes blink{0%,46%,50%,100%{transform:scaleY(1)}48%{transform:scaleY(.08)}}
+.hand{transform-origin:0 0;animation:tick 4s steps(12) infinite}
+@keyframes tick{to{transform:rotate(360deg)}}
+
+.bubble{position:absolute;top:-6px;right:-10px;max-width:170px;background:var(--paper);border:var(--line);border-radius:18px;
+  padding:8px 12px;font-weight:600;font-size:14px;line-height:1.2;box-shadow:var(--pop-sm);transform:rotate(4deg);transition:opacity .25s}
+.bubble::after{content:"";position:absolute;left:18px;bottom:-12px;width:18px;height:18px;background:var(--paper);
+  border-right:var(--line);border-bottom:var(--line);transform:rotate(45deg) skew(10deg,10deg)}
+.bubble.fade{opacity:0}
+
+h1{font-family:Anton,Impact,sans-serif;font-weight:400;text-transform:uppercase;line-height:.95;
+  font-size:clamp(44px,11vw,82px);letter-spacing:.5px;margin-top:6px;color:var(--paper);
+  -webkit-text-stroke:3px var(--ink);paint-order:stroke fill;text-shadow:5px 5px 0 var(--ink)}
+h1 .w{display:inline-block;animation:wiggle 3s ease-in-out infinite}
+h1 .w:nth-child(2){color:var(--yellow);animation-delay:.2s}
+h1 .w:nth-child(4){color:var(--pink);animation-delay:.5s}
+h1 .w:nth-child(5){color:var(--lime);animation-delay:.8s}
+@keyframes wiggle{0%,100%{transform:rotate(0)}50%{transform:rotate(-3deg) translateY(-3px)}}
+.sub{font-size:clamp(17px,4.4vw,21px);font-weight:500;margin:14px auto 0;max-width:30ch;color:var(--ink);
+  background:var(--paper);border:var(--line);border-radius:16px;padding:10px 14px;box-shadow:var(--pop-sm);transform:rotate(-1.2deg)}
+
+/* cards */
+.card{background:var(--paper);border:var(--line);border-radius:var(--r);box-shadow:var(--pop);padding:22px 18px;margin-top:30px;position:relative}
+.tag{position:absolute;top:-17px;left:18px;font-family:Anton,Impact,sans-serif;font-size:18px;letter-spacing:.6px;text-transform:uppercase;
+  background:var(--pink);color:var(--paper);border:var(--line);border-radius:10px;padding:3px 12px;transform:rotate(-3deg);
+  -webkit-text-stroke:1px var(--ink);paint-order:stroke fill}
+h2{font-family:Anton,Impact,sans-serif;font-weight:400;font-size:clamp(28px,7vw,38px);line-height:1;text-transform:uppercase;margin:6px 0 4px}
+.muted{font-size:15px;opacity:.75}
+
+label.lbl{display:block;font-weight:700;font-size:16px;margin:18px 0 8px}
+textarea,input[type=text],select{width:100%;font:inherit;font-size:17px;color:var(--ink);background:#fff;border:var(--line);border-radius:14px;
+  padding:12px 14px;outline:none;transition:box-shadow .15s, transform .15s}
+textarea{min-height:130px;resize:vertical;line-height:1.35}
+textarea:focus,input[type=text]:focus,select:focus{box-shadow:var(--pop-sm);transform:translate(-2px,-2px)}
+.counter{display:flex;justify-content:space-between;font-size:14px;font-weight:600;margin-top:6px;min-height:20px}
+.counter .quip{opacity:.8}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:inherit;font-weight:600;font-size:15px;border:var(--line);border-radius:999px;padding:7px 13px;background:#fff;cursor:pointer;
+  transition:transform .12s, box-shadow .12s, background .12s}
+.chip:hover{transform:translateY(-2px) rotate(-2deg)}
+.chip[aria-pressed=true]{background:var(--c,var(--yellow));box-shadow:var(--pop-sm);transform:translate(-2px,-2px) rotate(-2deg)}
+
+.row{display:grid;grid-template-columns:1fr;gap:0 14px}
+@media (min-width:560px){.row{grid-template-columns:1.4fr 1fr}}
+
+/* idea machine */
+.machine{margin-top:12px;display:flex;gap:10px;align-items:stretch;flex-wrap:wrap}
+.slot{flex:1 1 220px;min-height:52px;display:flex;align-items:center;background:var(--ink);color:var(--lime);border-radius:14px;padding:8px 14px;
+  font-weight:600;font-size:15px;line-height:1.25;border:var(--line);overflow:hidden}
+.slot.rolling{color:var(--yellow);filter:blur(.4px)}
+.btn{font-family:Anton,Impact,sans-serif;font-size:20px;letter-spacing:.8px;text-transform:uppercase;border:var(--line);border-radius:14px;
+  padding:10px 18px;cursor:pointer;box-shadow:var(--pop-sm);transition:transform .1s, box-shadow .1s;color:var(--ink)}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+.btn.spin{background:var(--orange)}
+.btn.send{width:100%;margin-top:22px;font-size:clamp(26px,7vw,34px);padding:14px;background:var(--lime)}
+.btn.send:disabled{opacity:.6;cursor:wait}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.err{color:var(--red);font-weight:700;font-size:15px;margin-top:10px;min-height:1px}
+
+/* success */
+.done{display:none;text-align:center}
+.done.on{display:block;animation:popin .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes popin{from{transform:scale(.6) rotate(-6deg);opacity:0}}
+.done .big{font-size:64px;line-height:1}
+.badge{display:inline-block;margin-top:10px;background:var(--yellow);border:var(--line);border-radius:12px;padding:6px 12px;font-weight:700;transform:rotate(-2deg)}
+
+/* episode wall */
+.wall{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+@media (min-width:560px){.wall{grid-template-columns:repeat(3,1fr)}}
+.ep{border:var(--line);border-radius:16px;padding:12px 10px 10px;background:var(--c);box-shadow:var(--pop-sm);position:relative;
+  font-weight:700;font-size:15px;line-height:1.15;transform:rotate(var(--t,0deg));transition:transform .15s}
+.ep:hover{transform:rotate(0) scale(1.04)}
+.ep .e{font-size:30px;display:block;margin-bottom:4px}
+.ep .no{position:absolute;top:8px;right:10px;font-family:Anton,Impact,sans-serif;font-size:14px;opacity:.6}
+.ep .stamp{display:inline-block;margin-top:8px;font-size:12px;font-weight:700;background:var(--paper);border:2px solid var(--ink);border-radius:999px;padding:1px 8px}
+
+/* steps */
+.steps{display:grid;gap:12px;margin-top:14px}
+.step{display:flex;gap:14px;align-items:center;border:var(--line);border-radius:16px;padding:12px 14px;background:#fff}
+.step .n{flex:none;width:46px;height:46px;border-radius:50%;border:var(--line);display:grid;place-items:center;
+  font-family:Anton,Impact,sans-serif;font-size:24px;background:var(--c)}
+.step b{display:block;font-size:17px}
+.step span{font-size:15px;opacity:.8}
+
+footer{text-align:center;margin-top:36px}
+.follow{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.follow a{font-size:18px;padding:10px 18px;text-decoration:none}
+.yt{background:var(--red);color:var(--paper)!important;-webkit-text-stroke:1px var(--ink);paint-order:stroke fill}
+.ig{background:linear-gradient(45deg,#FFD43B,#FF5FA2 50%,#9B6BFF);color:var(--paper)!important;-webkit-text-stroke:1px var(--ink);paint-order:stroke fill}
+.fine{font-size:13px;margin-top:16px;opacity:.75}
+
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+<div class="doodles" aria-hidden="true">
+  <span style="left:4%;top:8%">🪐</span>
+  <span style="right:5%;top:14%;animation-delay:-2s">⚡</span>
+  <span style="left:3%;top:46%;animation-delay:-4s">🦖</span>
+  <span style="right:4%;top:52%;animation-delay:-1s">🧪</span>
+  <span style="left:6%;top:82%;animation-delay:-3s">🛸</span>
+  <span style="right:7%;top:86%;animation-delay:-5s">🌋</span>
+  <span style="left:45%;top:96%;animation-delay:-6s">❓</span>
+</div>
+<canvas id="confetti"></canvas>
+
+<main>
+  <div class="setup-banner" id="setupBanner">🛠️ Setup mode: suggestions are not saved anywhere yet. Connect the form (see SETUP.md) before you share the link.</div>
+
+  <div class="topbar">
+    <a class="pill" id="igPill" href="#" target="_blank" rel="noopener">📸 @learninminuteshq</a>
+    <span class="pill live">Taking ideas now</span>
+  </div>
+
+  <section class="hero">
+    <div class="mascot-wrap">
+      <div class="bubble" id="bubble">Feed me a question. I'm starving.</div>
+      <svg class="mascot" id="mascot" viewBox="0 0 240 200" role="img" aria-label="Brainy, the Learn in Minutes mascot">
+        <g stroke="#14121A" stroke-width="11" fill="none">
+          <circle cx="70" cy="95" r="42"/><circle cx="112" cy="68" r="45"/><circle cx="162" cy="76" r="42"/>
+          <circle cx="188" cy="112" r="34"/><circle cx="54" cy="130" r="34"/><circle cx="100" cy="136" r="45"/><circle cx="152" cy="136" r="42"/>
+        </g>
+        <g fill="#FF8FC0">
+          <circle cx="70" cy="95" r="42"/><circle cx="112" cy="68" r="45"/><circle cx="162" cy="76" r="42"/>
+          <circle cx="188" cy="112" r="34"/><circle cx="54" cy="130" r="34"/><circle cx="100" cy="136" r="45"/><circle cx="152" cy="136" r="42"/>
+        </g>
+        <g stroke="#E0509A" stroke-width="5" fill="none" stroke-linecap="round">
+          <path d="M88 48 q10 12 0 22 q-8 9 4 18"/><path d="M128 36 q-6 14 6 22 q10 8 2 18"/>
+          <path d="M168 50 q12 6 8 18"/><path d="M42 102 q14 -4 18 8"/><path d="M196 96 q-12 4 -8 16"/>
+          <path d="M60 150 q10 -10 22 -2"/><path d="M172 158 q-8 -10 -20 -4"/>
+        </g>
+        <ellipse cx="76" cy="140" rx="13" ry="8" fill="#FF4F86" opacity=".55"/>
+        <ellipse cx="176" cy="140" rx="13" ry="8" fill="#FF4F86" opacity=".55"/>
+        <g class="eye"><circle cx="102" cy="112" r="24" fill="#fff" stroke="#14121A" stroke-width="4"/>
+          <g class="pupil" data-cx="102" data-cy="112"><circle cx="102" cy="112" r="10" fill="#14121A"/><circle cx="106" cy="108" r="3.2" fill="#fff"/></g></g>
+        <g class="eye"><circle cx="150" cy="112" r="24" fill="#fff" stroke="#14121A" stroke-width="4"/>
+          <g class="pupil" data-cx="150" data-cy="112"><circle cx="150" cy="112" r="10" fill="#14121A"/><circle cx="154" cy="108" r="3.2" fill="#fff"/></g></g>
+        <path id="mouth" d="M112 150 Q126 166 140 150" stroke="#14121A" stroke-width="5" fill="#B0174E" stroke-linejoin="round" stroke-linecap="round"/>
+        <g transform="translate(58 44) rotate(-22)">
+          <rect x="-5" y="-27" width="10" height="9" rx="2" fill="#FFD43B" stroke="#14121A" stroke-width="3.5"/>
+          <circle r="17" fill="#FFD43B" stroke="#14121A" stroke-width="4"/>
+          <circle r="11" fill="#fff" stroke="#14121A" stroke-width="2"/>
+          <line class="hand" x1="0" y1="0" x2="0" y2="-9" stroke="#14121A" stroke-width="3" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+    <h1><span class="w">What</span> <span class="w">should</span><br><span class="w">we</span> <span class="w">explain</span> <span class="w">next?</span></h1>
+    <p class="sub">You ask the weird question. We turn it into a video under a minute. Deal? 🤝</p>
+  </section>
+
+  <section class="card" id="formCard">
+    <span class="tag">Idea box</span>
+    <form id="ideaForm" name="idea" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+      <input type="hidden" name="form-name" value="idea">
+      <p class="hp"><label>Don't fill this: <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+
+      <h2>Drop your brain-melter 🧠💥</h2>
+      <p class="muted">The weirder, the better. "What if…" questions are our favourite food.</p>
+
+      <label class="lbl" for="idea">Your question</label>
+      <textarea id="idea" name="idea" maxlength="400" required placeholder="What if cows could fly… how much milk would rain on us?"></textarea>
+      <div class="counter"><span class="quip" id="quip">Go on, Brainy is listening 👀</span><span id="count">0/400</span></div>
+
+      <div class="machine">
+        <div class="slot" id="slot" aria-live="polite">Stuck? Spin the Idea Machine →</div>
+        <button type="button" class="btn spin" id="spinBtn">🎰 Spin</button>
+      </div>
+
+      <label class="lbl">What kind of idea is it?</label>
+      <div class="chips" id="chips" role="group" aria-label="Category">
+        <button type="button" class="chip" style="--c:var(--yellow)" aria-pressed="true">🤯 What if?</button>
+        <button type="button" class="chip" style="--c:var(--purple)" aria-pressed="false">🪐 Space</button>
+        <button type="button" class="chip" style="--c:var(--pink)" aria-pressed="false">🫀 Human body</button>
+        <button type="button" class="chip" style="--c:var(--lime)" aria-pressed="false">🦈 Animals</button>
+        <button type="button" class="chip" style="--c:var(--mint)" aria-pressed="false">🤖 Tech &amp; AI</button>
+        <button type="button" class="chip" style="--c:var(--orange)" aria-pressed="false">🏛️ History</button>
+        <button type="button" class="chip" style="--c:var(--gold)" aria-pressed="false">🎮 Games</button>
+        <button type="button" class="chip" style="--c:var(--glow)" aria-pressed="false">🧪 Weird science</button>
+      </div>
+      <input type="hidden" name="category" id="category" value="What if?">
+
+      <div class="row">
+        <div>
+          <label class="lbl" for="name">Your name or @handle <span class="muted">(optional, for the shout-out)</span></label>
+          <input type="text" id="name" name="name" maxlength="60" placeholder="@bigbrain_2009" autocomplete="nickname">
+        </div>
+        <div>
+          <label class="lbl" for="platform">Found us on</label>
+          <select id="platform" name="platform">
+            <option>YouTube</option><option>Instagram</option><option>A friend sent it</option><option>Somewhere else</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn send" id="sendBtn" type="submit">Send it 🚀</button>
+      <p class="err" id="err" role="alert"></p>
+    </form>
+
+    <div class="done" id="done">
+      <div class="big">🎉🧠🎉</div>
+      <h2>Idea received!</h2>
+      <p class="muted" id="doneMsg">Brainy is chewing on it right now. If we make it, you get the shout-out.</p>
+      <span class="badge" id="badge">Big brain level: 1</span>
+      <button class="btn send" type="button" id="againBtn" style="background:var(--yellow)">Send another 🔁</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <span class="tag" style="background:var(--purple)">Already explained</span>
+    <h2>Don't send these 😅</h2>
+    <p class="muted">We already made them (and they slapped). Watch them, then send something new.</p>
+    <div class="wall">
+      <div class="ep" style="--c:var(--yellow);--t:-2deg"><span class="no">#1</span><span class="e">🌍</span>What if Earth stopped spinning?<br><span class="stamp">✔ done</span></div>
+      <div class="ep" style="--c:var(--mint);--t:2deg"><span class="no">#2</span><span class="e">🤖</span>What if AI went rogue?<br><span class="stamp">✔ done</span></div>
+      <div class="ep" style="--c:var(--orange);--t:-1deg"><span class="no">#3</span><span class="e">🪂</span>PUBG in real life<br><span class="stamp">✔ done</span></div>
+      <div class="ep" style="--c:var(--pink);--t:1.5deg"><span class="no">#4</span><span class="e">⚡</span>10× faster reaction time<br><span class="stamp">✔ done</span></div>
+      <div class="ep" style="--c:var(--lime);--t:-2.5deg"><span class="no">#5</span><span class="e">🦶</span>A giant walks across Earth<br><span class="stamp">✔ done</span></div>
+      <div class="ep" style="--c:var(--purple);--t:2deg"><span class="no">#6</span><span class="e">🌀</span>What if you could teleport?<br><span class="stamp">✔ done</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <span class="tag" style="background:var(--orange)">How it works</span>
+    <h2>From your brain to the feed</h2>
+    <div class="steps">
+      <div class="step"><div class="n" style="--c:var(--yellow)">1</div><div><b>You send a weird question</b><span>Takes 20 seconds. No sign-up.</span></div></div>
+      <div class="step"><div class="n" style="--c:var(--pink)">2</div><div><b>Brainy picks the craziest ones</b><span>Bonus points if it makes us say "wait, WHAT?"</span></div></div>
+      <div class="step"><div class="n" style="--c:var(--lime)">3</div><div><b>It becomes a video</b><span>And your name goes on screen. Tell your mum.</span></div></div>
+    </div>
+  </section>
+
+  <footer>
+    <h2 style="color:var(--paper);-webkit-text-stroke:2px var(--ink);paint-order:stroke fill;text-shadow:4px 4px 0 var(--ink)">Follow so you see your idea go live</h2>
+    <div class="follow">
+      <a class="btn yt" id="ytLink" href="#" target="_blank" rel="noopener">▶ YouTube</a>
+      <a class="btn ig" id="igLink" href="#" target="_blank" rel="noopener">📸 Instagram</a>
+    </div>
+    <p class="fine">We only use what you type here to pick video ideas. No spam, pinky promise 🤙</p>
+  </footer>
+</main>
+
+<script>
+/* ===== CONFIG: the only part you need to edit ===== */
+const CONFIG = {
+  youtube: "https://www.youtube.com/@learninminuteshq",   // check this is the channel's real link
+  instagram: "https://www.instagram.com/learninminuteshq/",
+  // Google Form backend (free, unlimited, answers land in a Google Sheet). See SETUP.md.
+  googleForm: {
+    action: "https://docs.google.com/forms/d/e/1FAIpQLSf62CUoygytZLKo5SANRYsD3GujHxvre2JfzB3cWlpBzcODkg/formResponse",
+    fields: { idea: "entry.508680647", category: "entry.1977669556", name: "entry.1849553055", platform: "entry.1399361170" }
+  }
+};
+/* ================================================== */
+
+const $ = id => document.getElementById(id);
+$("ytLink").href = CONFIG.youtube;
+$("igLink").href = $("igPill").href = CONFIG.instagram;
+
+const useGoogle = !!CONFIG.googleForm.action;
+const onNetlify = /netlify\.app$/.test(location.hostname);
+if (!useGoogle && !onNetlify) $("setupBanner").classList.add("on");
+
+/* --- Brainy: eyes follow you --- */
+const svg = $("mascot"), pupils = [...document.querySelectorAll(".pupil")];
+function look(x, y){
+  const r = svg.getBoundingClientRect(), s = r.width / 240;
+  pupils.forEach(p => {
+    const cx = r.left + p.dataset.cx * s, cy = r.top + p.dataset.cy * s;
+    const a = Math.atan2(y - cy, x - cx), d = Math.min(9, Math.hypot(x - cx, y - cy) / 25);
+    p.setAttribute("transform", `translate(${Math.cos(a) * d} ${Math.sin(a) * d})`);
+  });
+}
+addEventListener("pointermove", e => look(e.clientX, e.clientY));
+addEventListener("focusin", e => { const b = e.target.getBoundingClientRect(); look(b.left + b.width / 2, b.top + b.height / 2); });
+
+/* --- speech bubble --- */
+const lines = [
+  "Feed me a question. I'm starving.",
+  "I run on 'what ifs' and snacks.",
+  "Your weirdest idea. Go.",
+  "No question is too dumb. I checked.",
+  "Psst… the best one gets a shout-out.",
+  "I've explained Earth. Bore me? Never."
+];
+let li = 0;
+const bubble = $("bubble");
+function say(t){ bubble.classList.add("fade"); setTimeout(() => { bubble.textContent = t; bubble.classList.remove("fade"); }, 250); }
+setInterval(() => { if (!svg.classList.contains("party")) say(lines[++li % lines.length]); }, 4200);
+const pokes = ["Hey! That tickles 😆", "Ow, my neurons!", "Boop received.", "I'm thinking, I'm thinking!"];
+svg.addEventListener("click", () => { say(pokes[Math.floor(Math.random() * pokes.length)]); party(); });
+function party(){ svg.classList.remove("party"); void svg.getBoundingClientRect(); svg.classList.add("party"); }
+svg.addEventListener("animationend", e => { if (e.animationName === "party") svg.classList.remove("party"); });
+
+/* --- textarea counter + quips --- */
+const idea = $("idea");
+function quip(n){
+  if (!n) return "Go on, Brainy is listening 👀";
+  if (n < 15) return "Keep going…";
+  if (n < 60) return "Ooh, I like where this is going 🤔";
+  if (n < 200) return "Okay that's actually a great question";
+  return "Bro wrote a whole script 📜";
+}
+idea.addEventListener("input", () => {
+  const n = idea.value.length;
+  $("count").textContent = n + "/400";
+  $("quip").textContent = quip(n);
+  $("mouth").setAttribute("d", n ? "M110 148 Q126 172 142 148 Z" : "M112 150 Q126 166 140 150");
+});
+
+/* --- category chips --- */
+const chips = [...document.querySelectorAll(".chip")];
+chips.forEach(c => c.addEventListener("click", () => {
+  chips.forEach(o => o.setAttribute("aria-pressed", o === c));
+  $("category").value = c.textContent.replace(/^\S+\s/, "").trim();
+}));
+
+/* --- Idea Machine --- */
+const sparks = [
+  "What if the Moon disappeared tonight?",
+  "What if humans could hibernate like bears?",
+  "What if you fell into a black hole feet first?",
+  "What if every ant on Earth attacked at once?",
+  "What if the internet shut down for a week?",
+  "What if you never slept again?",
+  "What if Earth had rings like Saturn?",
+  "What if dinosaurs never went extinct?",
+  "What if you drank only cola for a month?",
+  "What if all the ice on Earth melted overnight?",
+  "What if a T-rex lived in your city?",
+  "What if you could hear sounds from space?",
+  "What if the sun turned off for 1 minute?",
+  "What if humans had a tail?",
+  "What if you ate a spoonful of a neutron star?",
+  "What if gravity was 2× stronger?",
+  "What if you sneezed with your eyes open?",
+  "What if every country dug one giant hole?",
+  "What if sharks could walk on land?",
+  "What if you lived inside a video game?",
+  "What if Earth was flat (for real)?",
+  "What if you could only speak in emojis?"
+];
+let spinning = false;
+$("spinBtn").addEventListener("click", () => {
+  if (spinning) return;
+  spinning = true;
+  const slot = $("slot"); slot.classList.add("rolling");
+  let n = 0, delay = 45;
+  (function roll(){
+    slot.textContent = sparks[Math.floor(Math.random() * sparks.length)];
+    if (++n < 16) { delay *= 1.12; setTimeout(roll, delay); return; }
+    slot.classList.remove("rolling"); spinning = false;
+    idea.value = slot.textContent; idea.dispatchEvent(new Event("input"));
+    say("Ooh, spicy. Edit it or send it!");
+  })();
+});
+
+/* --- submit --- */
+const form = $("ideaForm"), err = $("err"), sendBtn = $("sendBtn");
+function store(get, set){ try { return set === undefined ? localStorage.getItem(get) : localStorage.setItem(get, set); } catch { return null; } }
+
+form.addEventListener("submit", async e => {
+  e.preventDefault();
+  err.textContent = "";
+  const text = idea.value.trim();
+  if (text.length < 10) { err.textContent = "Brainy needs a bit more than that (10+ characters) 🥺"; idea.focus(); return; }
+  if (form.elements["bot-field"].value) return;   // bot
+
+  const data = { idea: text, category: $("category").value, name: $("name").value.trim(), platform: $("platform").value };
+  sendBtn.disabled = true; sendBtn.textContent = "Launching… 🚀";
+  try {
+    if (useGoogle) {
+      const body = new URLSearchParams();
+      for (const k in data) if (CONFIG.googleForm.fields[k]) body.append(CONFIG.googleForm.fields[k], data[k]);
+      await fetch(CONFIG.googleForm.action, { method: "POST", mode: "no-cors", body });
+    } else if (onNetlify) {
+      const r = await fetch("/", { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ "form-name": "idea", ...data }).toString() });
+      if (!r.ok) throw new Error(r.status);
+    } else {
+      console.warn("Setup mode: not saved", data);
+    }
+    const total = (parseInt(store("lim-ideas")) || 0) + 1;
+    store("lim-ideas", total);
+    $("badge").textContent = "Big brain level: " + total + (total >= 3 ? " 🔥" : "");
+    form.style.display = "none"; $("done").classList.add("on");
+    say("NOM NOM. Delicious idea!"); party(); confetti();
+    $("formCard").scrollIntoView({ behavior: "smooth", block: "center" });
+  } catch (x) {
+    err.textContent = "Uh oh, the idea got lost in space. Try again in a sec 🛸";
+  } finally {
+    sendBtn.disabled = false; sendBtn.textContent = "Send it 🚀";
+  }
+});
+
+$("againBtn").addEventListener("click", () => {
+  form.reset(); idea.dispatchEvent(new Event("input"));
+  chips.forEach((c, i) => c.setAttribute("aria-pressed", i === 0)); $("category").value = "What if?";
+  $("done").classList.remove("on"); form.style.display = ""; idea.focus();
+});
+
+/* --- confetti --- */
+function confetti(){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const c = $("confetti"), ctx = c.getContext("2d");
+  c.width = innerWidth * devicePixelRatio; c.height = innerHeight * devicePixelRatio; ctx.scale(devicePixelRatio, devicePixelRatio);
+  const cols = ["#FFD43B", "#FF5FA2", "#B6F04A", "#FF8A3D", "#9B6BFF", "#4BE3C1", "#fff"];
+  const P = Array.from({ length: 160 }, () => ({
+    x: innerWidth / 2, y: innerHeight * .45, vx: (Math.random() - .5) * 16, vy: -Math.random() * 15 - 4,
+    w: 6 + Math.random() * 8, h: 4 + Math.random() * 6, r: Math.random() * 6, vr: (Math.random() - .5) * .4,
+    c: cols[Math.floor(Math.random() * cols.length)]
+  }));
+  const t0 = performance.now();
+  (function frame(t){
+    ctx.clearRect(0, 0, innerWidth, innerHeight);
+    P.forEach(p => {
+      p.vy += .42; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+      ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h); ctx.strokeStyle = "#14121A"; ctx.lineWidth = 1.2; ctx.strokeRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (t - t0 < 3200) requestAnimationFrame(frame); else ctx.clearRect(0, 0, innerWidth, innerHeight);
+  })(t0);
+}
+</script>
+</body>
+</html>
